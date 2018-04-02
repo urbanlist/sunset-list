@@ -16,7 +16,7 @@ import json
 def get_reversed_unix_time():
     max_value = sys.maxsize
     time_data = time.time()
-    return max_value-time_data
+    return str(int(max_value-time_data))
 
 def upload_pciture():
     stream = io.BytesIO()
@@ -40,7 +40,7 @@ def upload_pciture():
         image.save(imagefile, format='BMP')
         imagefile.seek(0)
         
-        file_name = '{0}.bmp'.format(str(get_reversed_unix_time()))
+        file_name = '{0}.bmp'.format(get_reversed_unix_time())
         block_blob_service = BlockBlobService(connection_string=app_key['azure_storage_connection'])
         blob = block_blob_service.create_blob_from_stream('nuknuk', file_name, imagefile)
         imagefile.close()
