@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+
+
 from azure.cosmosdb.table.tableservice import TableService
 from azure.storage.blob import BlockBlobService
 from azure.cosmosdb.table.models import Entity
@@ -33,7 +36,7 @@ def upload_pciture():
     # resize
     image = image.resize((int(720/8), int(480/8)), Image.ANTIALIAS)
     
-    with open('api_key.json', 'r') as f:
+    with open('/home/pi/projects/sunset-list/api_key.json', 'r') as f:
         app_key = json.loads(f.read())
         # stream image upload
         imagefile = io.BytesIO()
