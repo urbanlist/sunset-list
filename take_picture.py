@@ -7,6 +7,7 @@ from azure.cosmosdb.table.models import Entity
 from azure.storage.file import ContentSettings
 import io
 import time
+import datetime
 import numpy as np
 from PIL import Image
 import picamera
@@ -64,3 +65,5 @@ def upload_pciture():
 
 if __name__ == '__main__':
     upload_pciture()
+    with open('/home/pi/projects/sunset-list/log.log', 'a') as f:
+        f.write(str(datetime.datetime.now())+'\n')

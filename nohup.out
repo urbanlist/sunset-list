@@ -1,0 +1,166 @@
+Client-Request-ID=3264e93e-35d1-11e8-b9a4-b827eb6ffb34 Retry policy did not allow for a retry: , HTTP status code=Unknown, Exception=HTTPSConnectionPool(host='urbanlist.blob.core.windows.net', port=443): Max retries exceeded with url: /nuknuk/624880322.bmp?comp=block&blockid=TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQSUzRA%3D%3D (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x6f74e8b0>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',)).
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connection.py", line 141, in _new_conn
+    (self.host, self.port), self.timeout, **extra_kw)
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/usr/lib/python3.5/socket.py", line 733, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -3] Temporary failure in name resolution
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connectionpool.py", line 601, in urlopen
+    chunked=chunked)
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connectionpool.py", line 346, in _make_request
+    self._validate_conn(conn)
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connectionpool.py", line 850, in _validate_conn
+    conn.connect()
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connection.py", line 284, in connect
+    conn = self._new_conn()
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connection.py", line 150, in _new_conn
+    self, "Failed to establish a new connection: %s" % e)
+urllib3.exceptions.NewConnectionError: <urllib3.connection.VerifiedHTTPSConnection object at 0x6f74e8b0>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/requests/adapters.py", line 440, in send
+    timeout=timeout
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connectionpool.py", line 639, in urlopen
+    _stacktrace=sys.exc_info()[2])
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/util/retry.py", line 388, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='urbanlist.blob.core.windows.net', port=443): Max retries exceeded with url: /nuknuk/624880322.bmp?comp=block&blockid=TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQSUzRA%3D%3D (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x6f74e8b0>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/common/storageclient.py", line 252, in _perform_request
+    response = self._httpclient.perform_request(request)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/common/_http/httpclient.py", line 92, in perform_request
+    proxies=self.proxies)
+  File "/usr/local/lib/python3.5/dist-packages/requests/sessions.py", line 508, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.5/dist-packages/requests/sessions.py", line 618, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.5/dist-packages/requests/adapters.py", line 508, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='urbanlist.blob.core.windows.net', port=443): Max retries exceeded with url: /nuknuk/624880322.bmp?comp=block&blockid=TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQSUzRA%3D%3D (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x6f74e8b0>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 11, in <module>
+    take_picture.upload_pciture()
+  File "/home/pi/projects/sunset-list/take_picture.py", line 45, in upload_pciture
+    blob = block_blob_service.create_blob_from_stream('nuknuk', file_name, imagefile)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/blockblobservice.py", line 555, in create_blob_from_stream
+    initialization_vector=iv
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 92, in _upload_blob_chunks
+    range_ids = [f.result() for f in futures]
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 92, in <listcomp>
+    range_ids = [f.result() for f in futures]
+  File "/usr/lib/python3.5/concurrent/futures/_base.py", line 405, in result
+    return self.__get_result()
+  File "/usr/lib/python3.5/concurrent/futures/_base.py", line 357, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.5/concurrent/futures/thread.py", line 55, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 204, in process_chunk
+    return self._upload_chunk_with_progress(chunk_offset, chunk_bytes)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 218, in _upload_chunk_with_progress
+    range_id = self._upload_chunk(chunk_offset, chunk_data)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 263, in _upload_chunk
+    timeout=self.timeout,
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/blockblobservice.py", line 954, in _put_block
+    self._perform_request(request)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/common/storageclient.py", line 354, in _perform_request
+    raise ex
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/common/storageclient.py", line 294, in _perform_request
+    raise AzureException(ex.args[0])
+azure.common.AzureException: HTTPSConnectionPool(host='urbanlist.blob.core.windows.net', port=443): Max retries exceeded with url: /nuknuk/624880322.bmp?comp=block&blockid=TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQSUzRA%3D%3D (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x6f74e8b0>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
+Client-Request-ID=8b24b03a-36b8-11e8-9e7a-b827eb6ffb34 Retry policy did not allow for a retry: , HTTP status code=Unknown, Exception=HTTPSConnectionPool(host='urbanlist.blob.core.windows.net', port=443): Max retries exceeded with url: /nuknuk/624780959.bmp?comp=block&blockid=TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQSUzRA%3D%3D (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x6f591890>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',)).
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connection.py", line 141, in _new_conn
+    (self.host, self.port), self.timeout, **extra_kw)
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/usr/lib/python3.5/socket.py", line 733, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -3] Temporary failure in name resolution
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connectionpool.py", line 601, in urlopen
+    chunked=chunked)
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connectionpool.py", line 346, in _make_request
+    self._validate_conn(conn)
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connectionpool.py", line 850, in _validate_conn
+    conn.connect()
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connection.py", line 284, in connect
+    conn = self._new_conn()
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connection.py", line 150, in _new_conn
+    self, "Failed to establish a new connection: %s" % e)
+urllib3.exceptions.NewConnectionError: <urllib3.connection.VerifiedHTTPSConnection object at 0x6f591890>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/requests/adapters.py", line 440, in send
+    timeout=timeout
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/connectionpool.py", line 639, in urlopen
+    _stacktrace=sys.exc_info()[2])
+  File "/usr/local/lib/python3.5/dist-packages/urllib3/util/retry.py", line 388, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='urbanlist.blob.core.windows.net', port=443): Max retries exceeded with url: /nuknuk/624780959.bmp?comp=block&blockid=TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQSUzRA%3D%3D (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x6f591890>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/common/storageclient.py", line 252, in _perform_request
+    response = self._httpclient.perform_request(request)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/common/_http/httpclient.py", line 92, in perform_request
+    proxies=self.proxies)
+  File "/usr/local/lib/python3.5/dist-packages/requests/sessions.py", line 508, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.5/dist-packages/requests/sessions.py", line 618, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.5/dist-packages/requests/adapters.py", line 508, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='urbanlist.blob.core.windows.net', port=443): Max retries exceeded with url: /nuknuk/624780959.bmp?comp=block&blockid=TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQSUzRA%3D%3D (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x6f591890>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "main.py", line 11, in <module>
+    take_picture.upload_pciture()
+  File "/home/pi/projects/sunset-list/take_picture.py", line 45, in upload_pciture
+    blob = block_blob_service.create_blob_from_stream('nuknuk', file_name, imagefile)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/blockblobservice.py", line 555, in create_blob_from_stream
+    initialization_vector=iv
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 92, in _upload_blob_chunks
+    range_ids = [f.result() for f in futures]
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 92, in <listcomp>
+    range_ids = [f.result() for f in futures]
+  File "/usr/lib/python3.5/concurrent/futures/_base.py", line 405, in result
+    return self.__get_result()
+  File "/usr/lib/python3.5/concurrent/futures/_base.py", line 357, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.5/concurrent/futures/thread.py", line 55, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 204, in process_chunk
+    return self._upload_chunk_with_progress(chunk_offset, chunk_bytes)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 218, in _upload_chunk_with_progress
+    range_id = self._upload_chunk(chunk_offset, chunk_data)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/_upload_chunking.py", line 263, in _upload_chunk
+    timeout=self.timeout,
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/blob/blockblobservice.py", line 954, in _put_block
+    self._perform_request(request)
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/common/storageclient.py", line 354, in _perform_request
+    raise ex
+  File "/usr/local/lib/python3.5/dist-packages/azure/storage/common/storageclient.py", line 294, in _perform_request
+    raise AzureException(ex.args[0])
+azure.common.AzureException: HTTPSConnectionPool(host='urbanlist.blob.core.windows.net', port=443): Max retries exceeded with url: /nuknuk/624780959.bmp?comp=block&blockid=TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQSUzRA%3D%3D (Caused by NewConnectionError('<urllib3.connection.VerifiedHTTPSConnection object at 0x6f591890>: Failed to establish a new connection: [Errno -3] Temporary failure in name resolution',))
