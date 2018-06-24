@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
-
 from azure.cosmosdb.table.tableservice import TableService
 from azure.storage.blob import BlockBlobService
 from azure.cosmosdb.table.models import Entity
 from azure.storage.file import ContentSettings
+import weather
 import io
 import time
 import datetime
@@ -29,7 +29,7 @@ def is_night(df):
         return True
     return False
 
-def upload_pciture():
+def upload_pciture(is_enable_upload):
     stream = io.BytesIO()
     with picamera.PiCamera() as picam:
         picam.start_preview()
@@ -58,6 +58,9 @@ def upload_pciture():
     image_dataset = np.array(image_dataset)
     df = pd.DataFrame(image_dataset, columns=['red','green','blue'])
     
+    # 날씨 데이터
+    sky_status, temp, rain_type, wind_speed = weather.load_weather_data()
+    
     with open('/home/pi/projects/sunset-list/api_key.json', 'r') as f:
         app_key = json.loads(f.read())
         table_service = TableService(connection_string=app_key['azure_storage_connection'])
@@ -69,8 +72,14 @@ def upload_pciture():
                 'Green' : 0,
                 'Red' : 0,
                 'Blue': 0,
-                'FilePath':None}
-            table_service.insert_entity('nuknuk', task)
+                'FilePath':None,
+                'SkyStatus':sky_status,
+                'Temperature': temp,
+                'RainType': rain_type,
+                'WindSpeed': wind_speed
+            }
+            if is_enable_upload:
+                table_service.insert_entity('nuknuk', task)
         else:
             # stream image upload
             imagefile = io.BytesIO()
@@ -90,15 +99,24 @@ def upload_pciture():
                 'Green' : 0,
                 'Red' : 0,
                 'Blue': 0,
-                'FilePath':file_url}
-            table_service.insert_entity('nuknuk', task)
+                'FilePath':file_url,
+                'SkyStatus':sky_status,
+                'Temperature': temp,
+                'RainType': rain_type,
+                'WindSpeed': wind_speed
+            }
+            if is_enable_upload:
+                table_service.insert_entity('nuknuk', task)
     
     stream.close()
 
 if __name__ == '__main__':
     with open('/home/pi/projects/sunset-list/log.log', 'a') as f:
-        f.write('run: '+str(datetime.datetime.now())+'\n')
+#         f.write('run: '+str(datetime.datetime.now())+'\n')
         try:
-            upload_pciture()
+            if len(sys.argv) is 1:
+                upload_pciture(True)
+            else:
+                upload_pciture(False)
         except Exception as e:
             f.write('except: '+str(e)+'\n')
