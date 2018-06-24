@@ -1,7 +1,7 @@
 import requests
 import json
 
-with open('api_key.json', 'r') as f:
+with open('/home/pi/projects/sunset-list/api_key.json', 'r') as f:
     app_key = json.loads(f.read())
     
 def load_weather_data():

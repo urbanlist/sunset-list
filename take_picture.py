@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+import sys
+sys.path.append('/home/pi/projects/sunset-list')
+    
 from azure.cosmosdb.table.tableservice import TableService
 from azure.storage.blob import BlockBlobService
 from azure.cosmosdb.table.models import Entity
@@ -12,10 +15,8 @@ import numpy as np
 from PIL import Image
 import picamera
 import pandas as pd
-import sys
 import time
 import json
-
 
 def get_reversed_unix_time():
     max_value = sys.maxsize
@@ -29,7 +30,7 @@ def is_night(df):
         return True
     return False
 
-def upload_pciture(is_enable_upload):
+def upload_pciture():
     stream = io.BytesIO()
     with picamera.PiCamera() as picam:
         picam.start_preview()
@@ -78,8 +79,7 @@ def upload_pciture(is_enable_upload):
                 'RainType': rain_type,
                 'WindSpeed': wind_speed
             }
-            if is_enable_upload:
-                table_service.insert_entity('nuknuk', task)
+            table_service.insert_entity('nuknuk', task)
         else:
             # stream image upload
             imagefile = io.BytesIO()
@@ -105,8 +105,7 @@ def upload_pciture(is_enable_upload):
                 'RainType': rain_type,
                 'WindSpeed': wind_speed
             }
-            if is_enable_upload:
-                table_service.insert_entity('nuknuk', task)
+            table_service.insert_entity('nuknuk', task)
     
     stream.close()
 
@@ -114,9 +113,6 @@ if __name__ == '__main__':
     with open('/home/pi/projects/sunset-list/log.log', 'a') as f:
 #         f.write('run: '+str(datetime.datetime.now())+'\n')
         try:
-            if len(sys.argv) is 1:
-                upload_pciture(True)
-            else:
-                upload_pciture(False)
+            upload_pciture()
         except Exception as e:
             f.write('except: '+str(e)+'\n')
