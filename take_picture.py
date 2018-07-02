@@ -12,9 +12,9 @@ import io
 import time
 import datetime
 import numpy as np
+import pandas as pd
 from PIL import Image
 import picamera
-import pandas as pd
 import time
 import json
 
@@ -31,6 +31,7 @@ def is_night(df):
     return False
 
 def upload_pciture():
+    now = datetime.datetime.now()
     stream = io.BytesIO()
     with picamera.PiCamera() as picam:
         picam.start_preview()
@@ -59,26 +60,21 @@ def upload_pciture():
     image_dataset = np.array(image_dataset)
     df = pd.DataFrame(image_dataset, columns=['red','green','blue'])
     
-    # 날씨 데이터
-    sky_status, temp, rain_type, wind_speed = weather.load_weather_data()
-    
     with open('/home/pi/projects/sunset-list/api_key.json', 'r') as f:
         app_key = json.loads(f.read())
         table_service = TableService(connection_string=app_key['azure_storage_connection'])
         
+        task = {
+            'PartitionKey': 'nyuknyuk',
+            'RowKey': '{0}'.format(get_reversed_unix_time()),
+            'FilePath':None,
+            'SkyStatus':'none',
+            'Temperature': None,
+            'RainType': None,
+            'WindSpeed': None
+        }
+        
         if is_night(df):
-            task = {
-                'PartitionKey': 'nyuknyuk',
-                'RowKey': '{0}'.format(get_reversed_unix_time()), 
-                'Green' : 0,
-                'Red' : 0,
-                'Blue': 0,
-                'FilePath':None,
-                'SkyStatus':sky_status,
-                'Temperature': temp,
-                'RainType': rain_type,
-                'WindSpeed': wind_speed
-            }
             table_service.insert_entity('nuknuk', task)
         else:
             # stream image upload
@@ -92,20 +88,22 @@ def upload_pciture():
             imagefile.close()
 
             file_url = 'https://urbanlist.blob.core.windows.net/nuknuk/{0}'.format(file_name)
+            task['FilePath'] = file_url
 
-            task = {
-                'PartitionKey': 'nyuknyuk',
-                'RowKey': '{0}'.format(get_reversed_unix_time()), 
-                'Green' : 0,
-                'Red' : 0,
-                'Blue': 0,
-                'FilePath':file_url,
-                'SkyStatus':sky_status,
-                'Temperature': temp,
-                'RainType': rain_type,
-                'WindSpeed': wind_speed
-            }
-            table_service.insert_entity('nuknuk', task)
+            # 날씨 데이터
+            if now.minute % 5 == 0:
+                try:
+                    sky_status, temp, rain_type, wind_speed = weather.load_weather_data()
+                    task['SkyStatus'] = sky_status
+                    task['Temperature'] = temp
+                    task['RainType'] = rain_type
+                    task['WindSpeed'] = wind_speed
+                    
+                    table_service.insert_entity('nuknuk', task)
+                except:
+                    table_service.insert_entity('nuknuk', task)
+            else:
+                table_service.insert_entity('nuknuk', task)
     
     stream.close()
 
@@ -115,4 +113,4 @@ if __name__ == '__main__':
         try:
             upload_pciture()
         except Exception as e:
-            f.write('except: '+str(e)+'\n')
+            f.write(str(datetime.datetime.now())+' except: '+str(e)+'\n')
