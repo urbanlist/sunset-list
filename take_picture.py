@@ -7,7 +7,6 @@ from azure.cosmosdb.table.tableservice import TableService
 from azure.storage.blob import BlockBlobService
 from azure.cosmosdb.table.models import Entity
 from azure.storage.file import ContentSettings
-import weather
 import io
 import time
 import datetime
@@ -17,6 +16,9 @@ from PIL import Image
 import picamera
 import time
 import json
+import weather
+import analysis_sky
+
 
 def get_reversed_unix_time():
     max_value = sys.maxsize
@@ -30,8 +32,7 @@ def is_night(df):
         return True
     return False
 
-def upload_pciture():
-    now = datetime.datetime.now()
+def get_picture_stream():
     stream = io.BytesIO()
     with picamera.PiCamera() as picam:
         picam.start_preview()
@@ -41,24 +42,40 @@ def upload_pciture():
         picam.stop_preview()
         picam.close()
     stream.seek(0)
+    return stream
+
+def get_image_from_stream_as_resize(stream):
     image = Image.open(stream)
     
     # resize
     image = image.resize((int(720/8), int(480/8)), Image.ANTIALIAS)
     
     # 아래 45 픽셀 삭제
-    im_data = np.asarray(image)
-    crop_image = im_data[:45]
+    rgb_array = np.asarray(image)
+    crop_image = rgb_array[:45]
     im = Image.fromarray(crop_image)
     image = im
-    
+    return image, rgb_array
+
+def get_dataframe_from_rgb_array(rgb_array):
     # 데이터를 하나의 배열로 정리
     image_dataset = []
-    for row in im_data:
+    for row in rgb_array:
         for item in row:
             image_dataset.append(item)
     image_dataset = np.array(image_dataset)
     df = pd.DataFrame(image_dataset, columns=['red','green','blue'])
+    return df
+
+def upload_pciture():
+    now = datetime.datetime.now()
+    row_key = get_reversed_unix_time()
+    
+    stream = get_picture_stream()
+    image, rgb_array = get_image_from_stream_as_resize(stream)
+    
+    df = get_dataframe_from_rgb_array(rgb_array)
+    min_rgb, max_rgb = analysis_sky.analysis_rgb(df)
     
     with open('/home/pi/projects/sunset-list/api_key.json', 'r') as f:
         app_key = json.loads(f.read())
@@ -66,12 +83,18 @@ def upload_pciture():
         
         task = {
             'PartitionKey': 'nyuknyuk',
-            'RowKey': '{0}'.format(get_reversed_unix_time()),
+            'RowKey': '{0}'.format(row_key),
             'FilePath':None,
             'SkyStatus':'none',
             'Temperature': None,
             'RainType': None,
-            'WindSpeed': None
+            'WindSpeed': None,
+            'MinVectorRed':int(min_rgb.red),
+            'MinVectorGreen':int(min_rgb.green),
+            'MinVectorBlue':int(min_rgb.blue),
+            'MaxVectorRed':int(max_rgb.red),
+            'MaxVectorGreen':int(max_rgb.green),
+            'MaxVectorBlue':int(max_rgb.blue)
         }
         
         if is_night(df):
@@ -82,7 +105,7 @@ def upload_pciture():
             image.save(imagefile, format='BMP')
             imagefile.seek(0)
 
-            file_name = '{0}.bmp'.format(get_reversed_unix_time())
+            file_name = '{0}.bmp'.format(row_key)
             block_blob_service = BlockBlobService(connection_string=app_key['azure_storage_connection'])
             blob = block_blob_service.create_blob_from_stream('nuknuk', file_name, imagefile)
             imagefile.close()
