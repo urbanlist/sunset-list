@@ -18,6 +18,8 @@ import time
 import json
 import weather
 import analysis_sky
+import logging
+import traceback
 
 
 def get_reversed_unix_time():
@@ -37,6 +39,8 @@ def get_picture_stream():
     with picamera.PiCamera() as picam:
         picam.start_preview()
         picam.vflip = False
+        picam.iso = 100
+        picam.awb_mode = 'sunlight'
         time.sleep(2)
         picam.capture(stream, format='bmp')
         picam.stop_preview()
@@ -97,6 +101,18 @@ def upload_pciture():
             'MaxVectorBlue':int(max_rgb.blue)
         }
         
+        # 날씨 데이터
+        if now.minute % 5 == 0:
+            try:
+                sky_status, temp, rain_type, wind_speed = weather.load_weather_data()
+                task['SkyStatus'] = sky_status
+                task['Temperature'] = temp
+                task['RainType'] = rain_type
+                task['WindSpeed'] = wind_speed
+            except:
+                pass
+
+        # 밤 낮 구분
         if is_night(df):
             table_service.insert_entity('nuknuk', task)
         else:
@@ -112,21 +128,7 @@ def upload_pciture():
 
             file_url = 'https://urbanlist.blob.core.windows.net/nuknuk/{0}'.format(file_name)
             task['FilePath'] = file_url
-
-            # 날씨 데이터
-            if now.minute % 5 == 0:
-                try:
-                    sky_status, temp, rain_type, wind_speed = weather.load_weather_data()
-                    task['SkyStatus'] = sky_status
-                    task['Temperature'] = temp
-                    task['RainType'] = rain_type
-                    task['WindSpeed'] = wind_speed
-                    
-                    table_service.insert_entity('nuknuk', task)
-                except:
-                    table_service.insert_entity('nuknuk', task)
-            else:
-                table_service.insert_entity('nuknuk', task)
+            table_service.insert_entity('nuknuk', task)
     
     stream.close()
 
@@ -137,3 +139,4 @@ if __name__ == '__main__':
             upload_pciture()
         except Exception as e:
             f.write(str(datetime.datetime.now())+' except: '+str(e)+'\n')
+            traceback.print_exc(file=f)
