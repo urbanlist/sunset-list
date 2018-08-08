@@ -7,6 +7,7 @@ from azure.cosmosdb.table.tableservice import TableService
 from azure.storage.blob import BlockBlobService
 from azure.cosmosdb.table.models import Entity
 from azure.storage.file import ContentSettings
+import os
 import io
 import time
 import datetime
@@ -40,8 +41,20 @@ def get_picture_stream():
         picam.start_preview()
         picam.vflip = False
         picam.iso = 100
-        picam.awb_mode = 'sunlight'
-        time.sleep(2)
+        
+        if (os.path.isfile('/home/pi/projects/sunset-list/task.json')):
+            with open('/home/pi/projects/sunset-list/task.json', 'r') as f:
+                task = json.loads(f.read())
+                if task['SkyStatus'] == 'SKY_A01':
+                    picam.awb_mode = 'sunlight'
+                elif  task['SkyStatus'] == 'SKY_A02':
+                    picam.awb_mode = 'sunlight'
+                else:
+                    picam.awb_mode = 'auto'
+        else:
+            picam.awb_mode = 'auto'
+        
+        time.sleep(4)
         picam.capture(stream, format='bmp')
         picam.stop_preview()
         picam.close()
@@ -109,8 +122,18 @@ def upload_pciture():
                 task['Temperature'] = temp
                 task['RainType'] = rain_type
                 task['WindSpeed'] = wind_speed
+                with open('/home/pi/projects/sunset-list/task.json', 'w') as f:
+                    json.dump(task, f)
             except:
                 pass
+        else:
+            if (os.path.isfile('/home/pi/projects/sunset-list/task.json')):
+                with open('/home/pi/projects/sunset-list/task.json', 'r') as f:
+                    dump_task = json.loads(f.read())
+                    task['SkyStatus'] = dump_task['SkyStatus']
+                    task['Temperature'] = dump_task['Temperature']
+                    task['RainType'] = dump_task['RainType']
+                    task['WindSpeed'] = dump_task['WindSpeed']
 
         # 밤 낮 구분
         if is_night(df):
@@ -133,10 +156,11 @@ def upload_pciture():
     stream.close()
 
 if __name__ == '__main__':
-    with open('/home/pi/projects/sunset-list/log.log', 'a') as f:
 #         f.write('run: '+str(datetime.datetime.now())+'\n')
-        try:
-            upload_pciture()
-        except Exception as e:
+    try:
+        upload_pciture()
+    except Exception as e:
+        with open('/home/pi/projects/sunset-list/log.log', 'a') as f:
             f.write(str(datetime.datetime.now())+' except: '+str(e)+'\n')
             traceback.print_exc(file=f)
+            f.write('\n')
