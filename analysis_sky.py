@@ -41,8 +41,8 @@ def analysis_rgb(df):
             min_idx = idx
             continue
     
-    min_rgb = liner_data.iloc[min_idx]
-    max_rgb = liner_data.iloc[max_idx]
+    min_rgb = liner_data[liner_data.index == min_idx].iloc[0]
+    max_rgb = liner_data[liner_data.index == max_idx].iloc[0]
     
     return (min_rgb, max_rgb)
 
